@@ -6,28 +6,25 @@
     <script src="http://code.jquery.com/jquery-latest.js "></script>
     <script srC="libs/knockout.js"></script>
     <script src="libs/underscore.js"></script>
-     <!--<script src="chartbundle.js"></script>-->
+     <script src="chartbundle.js"></script>
     <script src="libs/chart.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="fontfaces.css" type="text/css" rel="stylesheet">
     <link href="style.css" type="text/css" rel="stylesheet">
 </head>
 
-<body>
-    <nav>
+<body style="background-size: cover;" data-bind="style: { backgroundImage: 'url(\'' + Movie.ImgSrc() + '\')' }">
+    <nav style="background-color: rgba(0,0,0,0.9);">
         <div style="text-align:center">
             <h1 style="display:inline-block" class="main-header">Movie Score Chart</h1>
         </div>
     </nav>
 
     <h2>Recent releases</h2>
-    <section class="row popularMovies" data-bind="foreach: PopularMovies">
+    <section style="background-color: rgba(0,0,0,0.9);" class="row popularMovies" data-bind="foreach: PopularMovies">
         <div data-bind="css: 'col-xs-3 col-md-2 col-lg-2 popularMovie'">
             <div class="media">
                 <div class="media-left">
-                    <!--<a data-bind="href: Url">
-						<img class="media-object" data-bind="attr: {src: ImgSrc}">
-					</a>-->
                     <h3 style="margin-top:0; padding-top:0;" data-bind="text: Score"></h3>
                 </div>
                 <div class="media-body">
@@ -63,7 +60,7 @@
 
     <article class="row currentMovie" data-bind='fadeVisible: currentMovie'>
         <section class="col-md-11 col-md-offset-1">
-            <div class="col-md-5 col-md-offset-x">
+            <!--<div class="col-md-5 col-md-offset-x">
                 <div class="media">
                     <div class="media-left">
                         <a data-bind="href: Movie.Url">
@@ -75,7 +72,7 @@
                         <p class="small" data-bind="html: Movie.Description"></p>
                     </div>
                 </div>
-            </div>
+            </div>-->
             <div class="col-md-6">
                 <div>
                     <span class="legend">Reviews</span>
@@ -88,27 +85,15 @@
     </article>
 
     <section class="row">
-        <div class="col-md-10 col-md-offset-2">
-            <h3 class="center-text" data-bind="text: 'The best and the worst reviews' "></h3>
-            <div class="center-block" data-bind="foreach: Reviews">
-                <div class="review"  style="">
-                    <span data-bind="text: $data.text"></span>
-                    <span class="grade" style="" data-bind="text: $data.grade"></span>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-    <section class="row">
         <div class="center-text col-md-8 col-md-offset-2">
-            <h3 data-bind="text: Scores().length + ' review scores'"></h3>
-            <div data-bind="foreach: Scores">
-                <div class="scoreCard" style="text-align: left">
+            <h4 class="center-text" data-bind="text: Scores().length + ' reviews'"></h4>
+            <div class="center-block" data-bind="foreach: Scores">
+                <div class="scoreCard">
                     <span data-bind="text: $data"></span>
                 </div>
             </div>
         </div>
+
     </section>
 
 </body>

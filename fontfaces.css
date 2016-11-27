@@ -1,25 +1,7 @@
 
 /* FONT FACES
 ***************************************************************/
-@font-face {
-    font-family: 'Ballpark';
-    src: url('fonts/helvetica/HelveticaLTStd-Bold.woff') format('woff'),format('truetype'),
-		url('fonts/helvetica/HelveticaLTStd-Bold.svg') format('svg');
-    font-weight: bold;
-    font-style: normal;
 
-}
-/**
-@font-face {
-    font-family: 'Helvetica';
-    src: url('fonts/helvetica/HelveticaLTStd-Bold.eot?') format('eot'),
-		url('fonts/helvetica/HelveticaLTStd-Bold.woff') format('woff'),
-		url('fonts/helvetica/HelveticaLTStd-Bold.ttf') format('truetype'),
-		url('fonts/helvetica/HelveticaLTStd-Bold.svg') format('svg');
-    font-weight: bold;
-    font-style: normal;
-
-}*/
 @font-face {
     font-family: 'HelveticaMedium';
     src: url('fonts/helvetica/HelveticaNeueMedium.eot?') format('eot'),
@@ -29,8 +11,6 @@
     font-style: normal;
 }
 
-
-
 @font-face {
     font-family: 'Helvetica';
     src: url('fonts/helvetica/HelveticaNeueBold.eot?') format('eot'),
@@ -39,8 +19,6 @@
     font-weight: bold;
     font-style: normal;
 }
-
-
 
 @font-face {
     font-family: 'DroidSansRegular';

@@ -9,19 +9,21 @@ $(document).ready(function () {
 
     bindView();
 
-    populateFirstPage().then(function (popularMovies) {
+    populateFirstPageAsyc().then(function (popularMovies) {
         if (movieName == null || movieName == "") {
             movieName = popularMovies[0].Title;
             movieUrl = popularMovies[0].Url;
             setMovieName(movieName);
         }
-        getCriticsHTML(movieUrl).then(function (criticsHTML) {
+        getCriticsHTMLAsync(movieUrl).then(function (criticsHTML) {
             if (searchByUrlParam) {
                 setUrlHash(movieUrl);
             }
             populateMovieScoreByCriticsHTML(criticsHTML);
         });
     });
+
+
 });
 
 var firstTimeLoading = false;
@@ -42,8 +44,11 @@ var searchClick = function (movie) {
         title = $("#searchBox").val();
         urlEncodedTitle = title.replace(/[,;: ]+/g, "-").toLowerCase();
     }
-    getCriticsHTML(urlEncodedTitle).then(function (criticsHTML) {
+    getCriticsHTMLAsync(urlEncodedTitle).then(function (criticsHTML) {
         setUrlHash(urlEncodedTitle);
+        var reviews = getReviews(criticsHTML);
+        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length-1]) : reviews;
+        viewModel.Reviews(reviews);
         populateMovieScoreByCriticsHTML(criticsHTML);
     });
 };
@@ -58,6 +63,7 @@ var viewModel = {
         Url: ko.observable(movieUrl),
         ImgSrc: ko.observable("")
     },
+    Reviews: ko.observableArray([]),
     Scores: ko.observableArray([]),
     ScoresAndCounts: ko.observableArray([]),
     SearchError: ko.observable(""),
@@ -72,13 +78,34 @@ var movieListColumnClass = function () {
     return "col-md-" + bootstrapWidth + "col-md-offset-" + bootstrapOffset;
 };
 
-var populateMovieScoreByCriticsHTML = function (html) {
+var getReviews = function (html) {
+    var reviewArray = [];
+    var reviews = jQuery(html).find(".review");
+    //note: this is a jquery object, not a JS array
 
+    if (reviews.length == 0) {
+        return [];
+    }
+
+    reviews.each(function (index, elem) {
+        var e = jQuery(elem).find(".summary a");
+        if (e && e.html && e.html() ) {
+            reviewArray.push( { 
+                text: e.html().trim(), 
+                grade: jQuery(elem).find(".metascore_w").html() 
+            } );
+        }
+    });
+   
+    return reviewArray;
+};
+
+var populateMovieScoreByCriticsHTML = function (html) {
     //options
     var NORMALIZE_SCORES = true;
     var PERCENTAGE_SCORES = true;
-
-    var allScores = parseScoresFromMetaCriticHTML(html);
+    //vars
+    var allScores = parseScoresFromMetaCriticHTML(html).reverse();
     var scoresAndCounts = getScoresAndCountsFromScores(allScores);
     viewModel.Scores(allScores);
     viewModel.ScoresAndCounts(scoresAndCounts);
@@ -121,37 +148,14 @@ var populateMovieScoreByCriticsHTML = function (html) {
     }
 
     var barchartdata = getBarChartData(yValues, xValues);
-    bindChart(barchartdata);
+    bindBarChart(barchartdata);
+
+    //var bubbleData = getBubbleChartData(allScores);
+    //bindBubbleChart();
 };
 
-var getBarChartData = function (data, labels) {
-    ///<summary>
-    ///Sample data: labels ["10%","20%","30%"] , data: [10count, 20count, 30count]
-    ///<summary>
 
-    var barChartData = {
-        labels: labels,
-        datasets: [
-            {
-                fillColor: "rgba(150,150,222,0.5)",
-                strokeColor: "rgba(80,80,200,0.8)",
-                highlightFill: "rgba(50,50,150,0.75)",
-                highlightStroke: "rgba(50,50,80,1)",
-                data: data
-            }/*,
-             {
-                fillColor: "rgba(150,222,222,0.5)",
-                strokeColor: "rgba(80,200,200,0.8)",
-                highlightFill: "rgba(50,150,150,0.75)",
-                highlightStroke: "rgba(50,80,80,1)",
-                data: []
-            }*/
-        ]
-    };
-    return barChartData;
-};
-
-var bindChart = function (data) {
+var bindBarChart = function (data) {
     //window.myBar.removeData();
     if (firstTimeLoading)
         window.myBar.reflow();
@@ -195,16 +199,15 @@ var bindView = function () {
     firstTimeLoading = false;
 };
 
-var FirstPageHTML = "";//todo
+var FirstPageHTML = "";
 
 var setMovieName = function (movieName, movieUrl) {
     viewModel.Movie.Name(movieName);
 };
 
-var populateFirstPage = function () {
-    ///Returns deferred
+var populateFirstPageAsyc = function () {
     var deferred = jQuery.Deferred();
-    getFirstPage().then(function (firstPageHTML) {
+    getFirstPageAsync().then(function (firstPageHTML) {
         var popularMovies = getPopularMoviesFromHTML(firstPageHTML);
         popularMovies = popularMovies.sort(function(a,b) {
           var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUE LEGEND [0=noChange, 1=makeAfirst, -1=makeBfirst]
@@ -213,10 +216,10 @@ var populateFirstPage = function () {
         viewModel.PopularMovies(popularMovies);
         deferred.resolve(popularMovies);
     });
-    return deferred.promise();;
+    return deferred.promise();
 };
 
-var getFirstPage = function () {
+var getFirstPageAsync = function () {
     var firstPageUrl = "http://www.metacritic.com/movie";
     var deferred = jQuery.Deferred();
     getCrossDomainData(firstPageUrl).done(function (firstPageHTML) {
@@ -232,18 +235,14 @@ var getFirstPage = function () {
     return deferred.promise();
 };
 
-var getMovieNameFromMoviePageHTML = function (html) {
-    return jQuery(html).find(".product_content_head .product_title a span").html().trim();
-};
-
-var getCriticsHTML = function (urlEncodedTitle) {
+var getCriticsHTMLAsync = function (urlEncodedTitle) {
     ///search for a movie and populate the page
 
     var url = movieUrl = urlBase + urlEncodedTitle + urlEnd;
 
     var deferred = jQuery.Deferred();
     getCrossDomainData(url).done(function (moviePageHTML) {
-        viewModel.Movie.Name(getMovieNameFromMoviePageHTML(moviePageHTML));
+        viewModel.Movie.Name(getMovieNameFromHTML(moviePageHTML));
         viewModel.Movie.ImgSrc(getImgSrcFromHTML(moviePageHTML));
         viewModel.Movie.Description(getDescriptionFromHTML(moviePageHTML));
         getCrossDomainData(url + "/critic-reviews").done(function (criticsHTML) {
@@ -291,8 +290,13 @@ var getScoresAndCountsFromScores = function (scores) {
     });
     return scoresAndCounts;
 };
+
+var getMovieNameFromHTML = function (html) {
+    return jQuery(html).find(".product_page_title h1").html().trim();
+};
+
 var getImgSrcFromHTML = function (html) {
-    var selector = "img.product_image.large_image";
+    var selector = ".summary_left img";
     var elems = jQuery(html).find(selector);
     if (elems.length == 0) {
         throw new Error("Damnit. MetaCritic changed their img markup and broke this web scraper");
@@ -301,7 +305,7 @@ var getImgSrcFromHTML = function (html) {
 };
 
 var getDescriptionFromHTML = function (html) {
-    var selector = "span[itemprop='description']";
+    var selector = ".blurb_expanded";
     var elems = jQuery(html).find(selector);
     if (elems.length == 0) {
         throw new Error("Damnit. MetaCritic changed their description markup and broke this web scraper");
@@ -310,7 +314,7 @@ var getDescriptionFromHTML = function (html) {
 };
 
 var parseScoresFromMetaCriticHTML = function (html) {
-    var movieScoresSelector = ".review.critic_review .metascore_w.movie.indiv";
+    var movieScoresSelector = ".review .metascore_w";
     var tagsWithScores = jQuery(html).find(movieScoresSelector);
     //note: this is a jquery object, not a JS array
     if (tagsWithScores.length == 0) {
@@ -326,16 +330,15 @@ var parseScoresFromMetaCriticHTML = function (html) {
 
 
 var getPopularMoviesFromHTML = function (html) {
-    var selector = ".score_title_table .score_title_row";
-    var htmlMovies = jQuery(html).find(selector).toArray();
+    var htmlMovies = jQuery(html).find(".new_releases_strip .product").toArray();
     if (htmlMovies.length == 0) {
         throw new Error("Damnit. MetaCritic changed their markup and broke this web scraper");
     }
     var movies = [];
     htmlMovies.forEach(function (x) {
-        var title = jQuery(x).find(".product_title").html().trim();
-        var score = jQuery(x).find(".metascore_w").html();
-        var url = jQuery(x).find(".product_title").attr("href").replace("/movie/", "");
+        var title = jQuery(x).find(".title_wrapper a span").html().trim();
+        var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
+        var score = jQuery(x).find(".metascore_w a").html();
         movies.push({
             Title: title,
             Score: score,
