@@ -15,16 +15,21 @@ $(document).ready(function () {
             movieUrl = popularMovies[0].Url;
             setMovieName(movieName);
         }
-        getCriticsHTMLAsync(movieUrl).then(function (criticsHTML) {
-            if (searchByUrlParam) {
-                setUrlHash(movieUrl);
-            }
-            populateMovieScoreByCriticsHTML(criticsHTML);
-        });
+        getMetacriticData(movieUrl,searchByUrlParam );
     });
-
-
 });
+
+var getMetacriticData = function(movieUrl,searchByUrlParam ) {
+    getCriticsHTMLAsync(movieUrl).then(function (criticsHTML) {
+        if (searchByUrlParam) {
+            setUrlHash(movieUrl);
+        }
+        populateMovieScoreByCriticsHTML(criticsHTML);
+        var reviews = getReviews(criticsHTML);
+        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length-1]) : reviews;
+        viewModel.Reviews(reviews);
+    });
+};
 
 var firstTimeLoading = false;
 var searchByUrlParam = false;
@@ -44,13 +49,7 @@ var searchClick = function (movie) {
         title = $("#searchBox").val();
         urlEncodedTitle = title.replace(/[,;: ]+/g, "-").toLowerCase();
     }
-    getCriticsHTMLAsync(urlEncodedTitle).then(function (criticsHTML) {
-        setUrlHash(urlEncodedTitle);
-        var reviews = getReviews(criticsHTML);
-        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length-1]) : reviews;
-        viewModel.Reviews(reviews);
-        populateMovieScoreByCriticsHTML(criticsHTML);
-    });
+    getMetacriticData(urlEncodedTitle, true);
 };
 
 var urlBase = "http://www.metacritic.com/movie/"
@@ -187,7 +186,7 @@ var bindBarChart = function (data) {
             g = value * 0.5 + green_base,
             b = 200; //blue_start - (value*2 + blue_base);
 
-        console.log("rgb(" + r + "," + g + "," + b + ")");
+        //console.log("rgb(" + r + "," + g + "," + b + ")");
         bar.fillColor = "rgb(" + r + "," + g + "," + b + ")";
     });
     myBar.update();
@@ -305,10 +304,10 @@ var getImgSrcFromHTML = function (html) {
 };
 
 var getDescriptionFromHTML = function (html) {
-    var selector = ".blurb_expanded";
-    var elems = jQuery(html).find(selector);
+    var elems = jQuery(html).find(".summary_deck.details_section");
     if (elems.length == 0) {
-        throw new Error("Damnit. MetaCritic changed their description markup and broke this web scraper");
+        console.error("Damnit. MetaCritic changed their description markup and broke this web scraper");
+        return "";
     }
     return elems.get(0).innerHTML;
 };
