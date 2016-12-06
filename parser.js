@@ -15,18 +15,18 @@ $(document).ready(function () {
             movieUrl = popularMovies[0].Url;
             setMovieName(movieName);
         }
-        getMetacriticData(movieUrl,searchByUrlParam );
+        getMetacriticData(movieUrl, searchByUrlParam);
     });
 });
 
-var getMetacriticData = function(movieUrl,searchByUrlParam ) {
+var getMetacriticData = function (movieUrl, searchByUrlParam) {
     getCriticsHTMLAsync(movieUrl).then(function (criticsHTML) {
         if (searchByUrlParam) {
             setUrlHash(movieUrl);
         }
         populateMovieScoreByCriticsHTML(criticsHTML);
         var reviews = getReviews(criticsHTML);
-        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length-1]) : reviews;
+        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length - 1]) : reviews;
         viewModel.Reviews(reviews);
     });
 };
@@ -88,14 +88,14 @@ var getReviews = function (html) {
 
     reviews.each(function (index, elem) {
         var e = jQuery(elem).find(".summary a");
-        if (e && e.html && e.html() ) {
-            reviewArray.push( { 
-                text: e.html().trim(), 
-                grade: jQuery(elem).find(".metascore_w").html() 
-            } );
+        if (e && e.html && e.html()) {
+            reviewArray.push({
+                text: e.html().trim(),
+                grade: jQuery(elem).find(".metascore_w").html()
+            });
         }
     });
-   
+
     return reviewArray;
 };
 
@@ -155,7 +155,6 @@ var populateMovieScoreByCriticsHTML = function (html) {
 
 
 var bindBarChart = function (data) {
-    //window.myBar.removeData();
     if (firstTimeLoading)
         window.myBar.reflow();
     else {
@@ -173,21 +172,11 @@ var bindBarChart = function (data) {
         tooltipTemplate: "<%= value + '% of reviews gave ' + label + '/100' %>"
     };
     window.myBar = new Chart(ctx).Bar(data, options);
-    //color each bar by score positivity
+
+    //color each bar by score 
     myBar.datasets[0].bars.map(function (bar, ix) {
-        var value = ix * 10;
-        var red_base = 100,
-            green_base = 150,
-            blue_base = 100,
-            red_start = 250;
-        blue_start = 250;
-
-        var r = red_start - (value * 2 + red_base),
-            g = value * 0.5 + green_base,
-            b = 200; //blue_start - (value*2 + blue_base);
-
-        //console.log("rgb(" + r + "," + g + "," + b + ")");
-        bar.fillColor = "rgb(" + r + "," + g + "," + b + ")";
+        bar.fillColor = window.chartColorArray[ix]; 
+        //getColorByScore(ix);
     });
     myBar.update();
 };
@@ -208,9 +197,9 @@ var populateFirstPageAsyc = function () {
     var deferred = jQuery.Deferred();
     getFirstPageAsync().then(function (firstPageHTML) {
         var popularMovies = getPopularMoviesFromHTML(firstPageHTML);
-        popularMovies = popularMovies.sort(function(a,b) {
-          var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUE LEGEND [0=noChange, 1=makeAfirst, -1=makeBfirst]
-          return sortResult;
+        popularMovies = popularMovies.sort(function (a, b) {
+            var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUE LEGEND [0=noChange, 1=Afirst, -1=eBfirst]
+            return sortResult;
         });
         viewModel.PopularMovies(popularMovies);
         deferred.resolve(popularMovies);
@@ -275,7 +264,7 @@ var getScoresAndCountsFromScores = function (scores) {
         if (indexOfExisting > -1) { //increase count for existing item
             scoresAndCounts[indexOfExisting].count += 1;
         }
-        else { //add new item
+        else { 
             scoresAndCounts.push({
                 score: x,
                 count: 1

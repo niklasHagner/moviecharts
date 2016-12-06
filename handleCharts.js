@@ -5,9 +5,9 @@ var getBarChartData = function(data, labels) {
         labels: labels,
         datasets: [
             {
-                fillColor: "rgba(150,150,222,0.5)",
+                fillColor: "rgba(200,200,222,0.5)",
                 strokeColor: "rgba(80,80,200,0.8)",
-                highlightFill: "rgba(50,50,150,0.75)",
+                highlightFill: "rgba(200,50,150,0.75)",
                 highlightStroke: "rgba(50,50,80,1)",
                 data: data
             }
@@ -15,8 +15,6 @@ var getBarChartData = function(data, labels) {
     };
     return barChartData;
 };
-
-
 
 function getOccurances(data) {
   function count(arr) {
@@ -27,9 +25,6 @@ function getOccurances(data) {
 
 var bubbleChartData = null;
 var getBubbleChartData = function (allScores) {
-
-    
-    //var occurances = getOccurances(allScores);
     var datas = [];
     var total = allScores.length;
     allScores.forEach(function(count, index) { 
@@ -49,46 +44,11 @@ var getBubbleChartData = function (allScores) {
         },
         datasets: [{
             label: "Movie Scores",
-            backgroundColor: Chart.helpers.color(window.chartColors.red).alpha(0.5).rgbString(),
-            borderColor: window.chartColors.red,
+            backgroundColor: Chart.helpers.color('lightblue').alpha(1).rgbString(),
+            borderColor: 'red',
             borderWidth: 1,
             data: datas
         }
-        // , {
-        //     label: "My Second dataset",
-        //     backgroundColor: color(window.chartColors.orange).alpha(0.5).rgbString(),
-        //     borderColor: window.chartColors.orange,
-        //     borderWidth: 1,
-        //     data: [{
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }, {
-        //         x: randomScalingFactor(),
-        //         y: randomScalingFactor(),
-        //         r: Math.abs(randomScalingFactor()) / 5,
-        //     }]
-        // }
         ]
     };
 
