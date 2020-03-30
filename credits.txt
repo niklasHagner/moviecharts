@@ -1,5 +1,0 @@
-
-CROSS-DOMAIN REQUESTS:
-http://james.padolsey.com/javascript/cross-domain-requests-with-jquery/
-http://pastie.org
-http://icant.co.uk/articles/crossdomain-ajax-with-jquery/error-handling.html

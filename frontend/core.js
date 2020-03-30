@@ -21,22 +21,25 @@ var getParameterByName = function (name) {
 var getCrossDomainData = function (requestUrl) {
     var deferred = $.Deferred();
 
-    var url = "http://query.yahooapis.com/v1/public/yql?" +
-        "q=select%20*%20from%20html%20where%20url%3D%22" +
-        encodeURIComponent(requestUrl) +
-        "%22&format=xml'&callback=?";
+    var url = "http://localhost:3000/?url=" + encodeURIComponent(requestUrl);
 
-    $.getJSON(url,
-        function (data) {
-            if (data.results[0]) {
-                var filteredData = filterData(data.results[0]);
-                deferred.resolve(filteredData);
-            } else { //error
-                deferred.reject("failed to get url");
-            }
-        });
+
+    $.get(url,
+        function (data,status) {
+        if (status === "success") {
+            deferred.resolve(data);
+        } else { //error
+            deferred.reject(`failed to get url: ${url}`);
+        }
+    });
 
     return deferred.promise();
+
+    // fetch(url)
+    //     .then((response) => {
+    //         debugger;
+    //         return response.data;
+    //     });
 };
 
 

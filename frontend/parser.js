@@ -15,7 +15,7 @@ $(document).ready(function () {
             movieUrl = popularMovies[0].Url;
             setMovieName(movieName);
         }
-        getMetacriticData(movieUrl, searchByUrlParam);
+        //getMetacriticData(movieUrl, searchByUrlParam);
     });
 });
 
@@ -221,6 +221,11 @@ var getFirstPageAsync = function () {
         });
 
     return deferred.promise();
+
+    // return new Promise((resolve, reject) => {
+    //      return resolve(window.getExampleHtml());
+    //  });
+   
 };
 
 var getCriticsHTMLAsync = function (urlEncodedTitle) {
@@ -284,7 +289,7 @@ var getMovieNameFromHTML = function (html) {
 };
 
 var getImgSrcFromHTML = function (html) {
-    var selector = ".summary_left img";
+    var selector = ".summary_img";
     var elems = jQuery(html).find(selector);
     if (elems.length == 0) {
         throw new Error("Damnit. MetaCritic changed their img markup and broke this web scraper");
@@ -318,7 +323,7 @@ var parseScoresFromMetaCriticHTML = function (html) {
 
 
 var getPopularMoviesFromHTML = function (html) {
-    var htmlMovies = jQuery(html).find(".new_releases_strip .product").toArray();
+    var htmlMovies = jQuery(html).find(".image_strip .product").toArray();
     if (htmlMovies.length == 0) {
         throw new Error("Damnit. MetaCritic changed their markup and broke this web scraper");
     }
@@ -326,7 +331,7 @@ var getPopularMoviesFromHTML = function (html) {
     htmlMovies.forEach(function (x) {
         var title = jQuery(x).find(".title_wrapper a span").html().trim();
         var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
-        var score = jQuery(x).find(".metascore_w a").html();
+        var score = jQuery(x).find(".metascore_w").html();
         movies.push({
             Title: title,
             Score: score,
