@@ -19,11 +19,9 @@ var getParameterByName = function (name) {
 
 
 var getCrossDomainData = function (requestUrl) {
-    var deferred = $.Deferred();
-
     var url = window.location.origin + "/scrape?url=" + encodeURIComponent(requestUrl);
-
-
+        
+    var deferred = $.Deferred();
     $.get(url,
         function (data,status) {
         if (status === "success") {
@@ -32,12 +30,10 @@ var getCrossDomainData = function (requestUrl) {
             deferred.reject(`failed to get url: ${url}`);
         }
     });
-
     return deferred.promise();
 
     // fetch(url)
     //     .then((response) => {
-    //         debugger;
     //         return response.data;
     //     });
 };

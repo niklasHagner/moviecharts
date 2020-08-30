@@ -169,7 +169,7 @@ var bindBarChart = function (data) {
         scaleShowLabelBackdrop: true,
         scaleShowLabels: true,
         scaleBeginAtZero: true,
-        tooltipTemplate: "<%= value + '% of reviews gave ' + label + '/100' %>"
+        tooltipTemplate: "<%= value + '% of the reviewers gave it ' + label + '/100' %>"
     };
     window.myBar = new Chart(ctx).Bar(data, options);
 
@@ -198,7 +198,11 @@ var populateFirstPageAsyc = function () {
     getFirstPageAsync().then(function (firstPageHTML) {
         var popularMovies = getPopularMoviesFromHTML(firstPageHTML);
         popularMovies = popularMovies.sort(function (a, b) {
-            var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUE LEGEND [0=noChange, 1=Afirst, -1=eBfirst]
+            var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
+            return sortResult;
+        });
+        popularMovies = popularMovies.sort(function (a, b) {
+            var sortResult = Number(a.IsOnStreamingServices) < Number(b.IsOnStreamingServices) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
             return sortResult;
         });
         popularMovies = getUniqueByValue(popularMovies, 'FulUrl');
@@ -336,11 +340,13 @@ var getPopularMoviesFromHTML = function (html) {
         var title = jQuery(x).find(".title_wrapper a span").html().trim();
         var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
         var score = jQuery(x).find(".metascore_w").html();
+        var isOnStreamingServices = jQuery(x).closest(".watch_now_strip").length > 0;
         movies.push({
             Title: title,
             Score: score,
             FulUrl: urlBase + url,
-            Url: url
+            Url: url,
+            IsOnStreamingServices: isOnStreamingServices
         });
 
     });
