@@ -293,7 +293,7 @@ var getImgSrcFromHTML = function (html) {
     var selector = ".summary_img";
     var elems = jQuery(html).find(selector);
     if (elems.length == 0) {
-        throw new Error("Damnit. MetaCritic changed their img markup and broke this web scraper");
+        console.error("Damnit. MetaCritic changed their img markup and broke this web scraper");
     }
     return elems.get(0)["src"];
 };
@@ -313,9 +313,9 @@ var getDescriptionFromHTML = function (html) {
 var parseScoresFromMetaCriticHTML = function (html) {
     var movieScoresSelector = ".review .metascore_w";
     var tagsWithScores = jQuery(html).find(movieScoresSelector);
-    //note: this is a jquery object, not a JS array
     if (tagsWithScores.length == 0) {
-        throw new Error("Damnit. MetaCritic changed their markup and broke this web scraper");
+        console.error("Damnit. MetaCritic changed their markup for `review .metascore_w`");
+        return [];
     }
     var scoreArray = [];
     var scoresJqArray = tagsWithScores.map(function (index, elem) {
