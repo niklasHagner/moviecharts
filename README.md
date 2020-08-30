@@ -10,15 +10,18 @@ As that online service was shut down, I had to write a backend to handle the scr
 
 ## Basic idea
 
-1. `frontend/index.html` is loaded and runs the the  `frontend/main.js` which sets up knockout and triggers all data fetches
+1. `public/index.html` is loaded and runs the the  `public/main.js` which sets up knockout and triggers all data fetches
 2. Initially an overview of popular movies is rendered
 3. Secondly, we fetch more details about the first film, and use the review-scores to render a bar chart using chartJs.org
 
+Note: technically you could just navigate to `public/index.html` directly .
+
+But the node app's root endpoint will also serve that page.
 
 ## Run the application
 
-1. `node app.js` to start the node-server which will be used as our api
-2. Navigate to the static page `frontend/index.html` which calls the node-server as an api
+1. `node app.js` to start the node-server which will be used as our API
+2. Navigate to `localhost:3000` - and it'll serve `public/index.html` which in turn will call the API
 
 
 ## Details
