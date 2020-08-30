@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-const { scrapeUrl } = require('./scrape.js');
+const { scrapeUrl } = require('./scrapeWithCheerio.js');
 const cors = require('cors');
 
 app.use(express.static('public'))
