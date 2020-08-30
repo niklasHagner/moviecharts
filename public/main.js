@@ -201,6 +201,7 @@ var populateFirstPageAsyc = function () {
             var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUE LEGEND [0=noChange, 1=Afirst, -1=eBfirst]
             return sortResult;
         });
+        popularMovies = getUniqueByValue(popularMovies, 'FulUrl');
         viewModel.PopularMovies(popularMovies);
         deferred.resolve(popularMovies);
     });
@@ -298,7 +299,10 @@ var getImgSrcFromHTML = function (html) {
 };
 
 var getDescriptionFromHTML = function (html) {
-    var elems = jQuery(html).find(".blurb_expanded");
+    var elems = jQuery(html).find(".summary_deck.details_section");
+    if (elems.length == 0) {
+        elems = jQuery(html).find(".blurb_expanded");
+    }
     if (elems.length == 0) {
         console.error("Damnit. MetaCritic changed their description markup and broke this web scraper");
         return "";
