@@ -1,5 +1,38 @@
 # moviecharts
 
-Scrape metacritic
+Scrapes metacritic movie reviews and presents the scores as a bar-chart.
 
-Present a chart of score distributions
+## Intro
+
+This was built in 2016 as a frontend application which just called an online service to scrape html from metacritic.com and parsed it clientside.
+
+As that online service was shut down, I had to write a backend to handle the scraping.
+
+## Basic idea
+
+1. `frontend/index.html` is loaded and runs the the  `frontend/main.js` which sets up knockout and triggers all data fetches
+2. Initially an overview of popular movies is rendered
+3. Secondly, we fetch more details about the first film, and use the review-scores to render a bar chart using chartJs.org
+
+
+## Run the application
+
+1. `node app.js` to start the node-server which will be used as our api
+2. Navigate to the static page `frontend/index.html` which calls the node-server as an api
+
+
+## Details
+
+Uses two default movies as backup data
+* Inception 
+* Automata
+
+
+## Tech
+
+remember this was built in 2016
+
+* knockoutJs for data-binding
+* chartJs.org for bar-charts
+* jQuery for fetching and queryselectors
+* bootstrap for basic layout, search form and fonts.
