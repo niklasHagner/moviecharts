@@ -298,7 +298,7 @@ var getImgSrcFromHTML = function (html) {
 };
 
 var getDescriptionFromHTML = function (html) {
-    var elems = jQuery(html).find(".summary_deck.details_section");
+    var elems = jQuery(html).find(".blurb_expanded");
     if (elems.length == 0) {
         console.error("Damnit. MetaCritic changed their description markup and broke this web scraper");
         return "";
