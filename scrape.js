@@ -7,7 +7,7 @@ async function scrapeUrl(url = "https://www.metacritic.com/movie/shutter-island/
   await page.goto(url, { waitUntil: 'networkidle0' });
 
   let html = await page.evaluate(() => {
-    return document.documentElement.innerHTML;
+    return document.documentElement.body.innerHTML;
   });
 
   await browser.close();
