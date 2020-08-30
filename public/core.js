@@ -21,7 +21,7 @@ var getParameterByName = function (name) {
 var getCrossDomainData = function (requestUrl) {
     var deferred = $.Deferred();
 
-    var url = "http://localhost:3000/scrape?url=" + encodeURIComponent(requestUrl);
+    var url = window.location.origin + "/scrape?url=" + encodeURIComponent(requestUrl);
 
 
     $.get(url,
