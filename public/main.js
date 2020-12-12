@@ -46,8 +46,8 @@ var searchClick = function (movie) {
         urlEncodedTitle = movie.Url;
     }
     else { //search by value in textbox
-        title = $("#searchBox").val();
-        urlEncodedTitle = title.replace(/[,;: ]+/g, "-").toLowerCase();
+        title = $("#searchBox").val().trim();
+        urlEncodedTitle = title.replace(/[,;: ]+/g, "-").replace("'","").toLowerCase();
     }
     fetchDataForOneFilmAndDisplayItsReviews(urlEncodedTitle, true);
 };
