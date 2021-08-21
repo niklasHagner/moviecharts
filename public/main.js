@@ -197,14 +197,16 @@ var populateFirstPageAsyc = function () {
     var deferred = jQuery.Deferred();
     getFirstPageAsync().then(function (firstPageHTML) {
         var popularMovies = getPopularMoviesFromHTML(firstPageHTML);
-        popularMovies = popularMovies.sort(function (a, b) {
-            var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
-            return sortResult;
-        });
-        popularMovies = popularMovies.sort(function (a, b) {
-            var sortResult = Number(a.IsOnStreamingServices) < Number(b.IsOnStreamingServices) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
-            return sortResult;
-        });
+        popularMovies = popularMovies
+            .filter(x => isNaN(x.Score)===false )
+            .sort(function (a, b) {
+                var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
+                return sortResult;
+            })
+            .sort(function (a, b) {
+                var sortResult = Number(a.IsOnStreamingServices) < Number(b.IsOnStreamingServices) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
+                return sortResult;
+            });
         popularMovies = getUniqueByValue(popularMovies, 'FulUrl');
         viewModel.PopularMovies(popularMovies);
         deferred.resolve(popularMovies);
