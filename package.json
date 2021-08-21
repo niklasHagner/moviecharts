@@ -1,13 +1,12 @@
 {
     "name": "moviecharts",
     "dependencies": {
-        "cheerio": "^1.0.0-rc.3",
+        "cheerio": "^1.0.0-rc.10",
         "cors": "^2.8.5",
         "express": "^4.17.1",
-        "got": "^11.5.2",
-        "moment": "^2.27.0",
-        "node-fetch": "^2.6.0",
-        "puppeteer": "^5.2.1"
+        "got": "^11.8.2",
+        "moment": "^2.29.1",
+        "node-fetch": "^2.6.1"
     },
     "scripts": {
         "start": "node app.js"
