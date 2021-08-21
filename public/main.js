@@ -9,7 +9,8 @@ $(document).ready(function () {
 
     bindView();
 
-    populateFirstPageAsyc().then(function (popularMovies) {
+    populateFirstPageAsyc().then(function (movies) {
+        var popularMovies = movies.popularMovies;
         if (movieName == null || movieName == "") {
             movieName = popularMovies[0].Title;
             movieUrl = popularMovies[0].Url;
@@ -67,12 +68,13 @@ var viewModel = {
     ScoresAndCounts: ko.observableArray([]),
     SearchError: ko.observable(""),
     SearchClick: searchClick,
-    PopularMovies: ko.observableArray([]),
+    NewReleases: ko.observableArray([]),
+    MoviesOnStreamingServices: ko.observableArray([]),
     MovieListColumnClass: movieListColumnClass
 };
 
 var movieListColumnClass = function () {
-    var bootstrapWidth = Math.floor(viewModel.PopularMovies().length / 12);
+    var bootstrapWidth = Math.floor(viewModel.NewReleases().length / 12);
     var bootstrapOffset = 0;
     return "col-md-" + bootstrapWidth + "col-md-offset-" + bootstrapOffset;
 };
@@ -187,29 +189,36 @@ var bindView = function () {
     firstTimeLoading = false;
 };
 
-var FirstPageHTML = "";
-
 var setMovieName = function (movieName, movieUrl) {
     viewModel.Movie.Name(movieName);
 };
 
+/*
+    returns { popularMovies: [], moviesOnStreamingServices: [] }
+*/
 var populateFirstPageAsyc = function () {
     var deferred = jQuery.Deferred();
     getFirstPageAsync().then(function (firstPageHTML) {
-        var popularMovies = getPopularMoviesFromHTML(firstPageHTML);
-        popularMovies = popularMovies
-            .filter(x => isNaN(x.Score)===false )
+        var allMovies = transformFirstPageHtmlToMoviesJson(firstPageHTML)
+            .filter(x => isNaN(x.Score)===false );
+        allMovies = getUniqueByValue(allMovies, 'fullUrl');
+
+        var popularMovies = allMovies
+            .filter(x => x.isOnStreamingServices===false )
             .sort(function (a, b) {
                 var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
                 return sortResult;
             })
-            .sort(function (a, b) {
-                var sortResult = Number(a.IsOnStreamingServices) < Number(b.IsOnStreamingServices) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
+        var moviesOnStreamingServices = allMovies
+            .filter(x => x.isOnStreamingServices === true)
+            .sort(function(a,b) {
+                var sortResult = Number(a.Score) >= Number(b.Score) ? -1 : 1; //SORTING RETURN VALUES: [0=noChange, 1=Afirst, -1=eBfirst]
                 return sortResult;
             });
-        popularMovies = getUniqueByValue(popularMovies, 'FulUrl');
-        viewModel.PopularMovies(popularMovies);
-        deferred.resolve(popularMovies);
+
+        viewModel.NewReleases(popularMovies);
+        viewModel.MoviesOnStreamingServices(moviesOnStreamingServices);
+        deferred.resolve({popularMovies, moviesOnStreamingServices});
     });
     return deferred.promise();
 };
@@ -217,10 +226,10 @@ var populateFirstPageAsyc = function () {
 var getFirstPageAsync = function () {
     var firstPageUrl = "http://www.metacritic.com/movie";
     var deferred = jQuery.Deferred();
-    getCrossDomainData(firstPageUrl).done(function (firstPageHTML) {
-        FirstPageHTML = firstPageHTML; //todo
-        deferred.resolve(firstPageHTML);
-    })
+    getCrossDomainData(firstPageUrl)
+        .done(function (firstPageHTML) {
+            deferred.resolve(firstPageHTML);
+        })
         .fail(function () {
             viewModel.SearchError("Could not load the first page, AAARGH!");
             deferred.reject("could not get first page");
@@ -241,22 +250,24 @@ var getCriticsHTMLAsync = function (urlEncodedTitle) {
     var url = movieUrl = urlBase + urlEncodedTitle + urlEnd;
 
     var deferred = jQuery.Deferred();
-    getCrossDomainData(url).done(function (moviePageHTML) {
-        setMovieName(getMovieNameFromHTML(moviePageHTML));
-        viewModel.Movie.ImgSrc(getImgSrcFromHTML(moviePageHTML));
-        viewModel.Movie.Description(getDescriptionFromHTML(moviePageHTML));
-        getCrossDomainData(url + "/critic-reviews").done(function (criticsHTML) {
-            viewModel.SearchError("");
-            deferred.resolve(criticsHTML);
+    getCrossDomainData(url)
+        .done(function (moviePageHTML) {
+            setMovieName(getMovieNameFromHTML(moviePageHTML));
+            viewModel.Movie.ImgSrc(getImgSrcFromHTML(moviePageHTML));
+            viewModel.Movie.Description(getDescriptionFromHTML(moviePageHTML));
+            getCrossDomainData(url + "/critic-reviews")
+                .done(function (criticsHTML) {
+                    viewModel.SearchError("");
+                    deferred.resolve(criticsHTML);
+                })
+                .fail(function () {
+                    viewModel.Scores([]);
+                    viewModel.ScoresAndCounts([]);
+                    viewModel.SearchError("No reviews found. Try again!");
+                    deferred.reject();
+                    throw Error("getCrossDomainData promise failure :'( ...");
+                });
         })
-            .fail(function () {
-                viewModel.Scores([]);
-                viewModel.ScoresAndCounts([]);
-                viewModel.SearchError("No reviews found. Try again!");
-                deferred.reject();
-                throw Error("getCrossDomainData promise failure :'( ...");
-            });
-    })
         .fail(function () {
             viewModel.SearchError("No results found. Try again!");
             deferred.reject();
@@ -332,7 +343,7 @@ var parseScoresFromMetaCriticHTML = function (html) {
 };
 
 
-var getPopularMoviesFromHTML = function (html) {
+var transformFirstPageHtmlToMoviesJson = function (html) {
     var htmlMovies = jQuery(html).find(".image_strip .product").toArray();
     if (htmlMovies.length == 0) {
         throw new Error("Damnit. MetaCritic changed their markup and broke this web scraper");
@@ -342,13 +353,13 @@ var getPopularMoviesFromHTML = function (html) {
         var title = jQuery(x).find(".title_wrapper a span").html().trim();
         var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
         var score = jQuery(x).find(".metascore_w").html();
-        var isOnStreamingServices = jQuery(x).closest(".watch_now_strip").length > 0;
+        var isOnStreamingServices = jQuery(x).closest(".watch_now").length > 0;
         movies.push({
             Title: title,
             Score: score,
-            FulUrl: urlBase + url,
+            fullUrl: urlBase + url,
             Url: url,
-            IsOnStreamingServices: isOnStreamingServices
+            isOnStreamingServices
         });
 
     });
