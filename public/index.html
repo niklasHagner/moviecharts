@@ -22,8 +22,8 @@
     </nav>
 
     <h2>In Theaters</h2>
-    <section class="row popularMovies" data-bind="foreach: NewReleases">
-        <div data-bind="css: 'col-xs-3 col-md-2 col-lg-2 popularMovie'">
+    <section class="movie-grid" data-bind="foreach: NewReleases">
+        <div data-bind="css: 'popularMovie'">
             <div class="media">
                 <div class="media-left">
                     <!--<a data-bind="href: Url">
@@ -43,8 +43,8 @@
     </section>
 
     <h2>On Netflix</h2>
-    <section class="row popularMovies" data-bind="foreach: MoviesOnStreamingServices">
-        <div data-bind="css: 'col-xs-3 col-md-2 col-lg-2 popularMovie'">
+    <section class="movie-grid" data-bind="foreach: MoviesOnStreamingServices">
+        <div data-bind="css: 'popularMovie'">
             <div class="media">
                 <div class="media-left">
                     <!--<a data-bind="href: Url">

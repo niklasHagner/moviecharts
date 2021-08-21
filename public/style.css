@@ -39,6 +39,19 @@ h1, h2, h3, h4 {
     display: block;
 }
 
+.movie-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 33%);
+    min-height: 200px; /* reserve space even before content is loaded */
+}
+
+@media screen and (min-width: 992px) {
+    .movie-grid {
+        grid-template-columns: repeat(5, 20%);
+    }    
+}
+
 .popularMovie {
     transition: all 0.5s ease;
 }
@@ -48,7 +61,6 @@ h1, h2, h3, h4 {
 }
 
 .popularMovie .media-heading {
-    width: 130px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -59,10 +71,7 @@ h1, h2, h3, h4 {
 
 @media (min-width: 1200px) {
     .popularMovie .media-heading {
-        width: 200px;
-    }
-    .popularMovie .media-heading {
-        font-size: 20px;
+        font-size: 18px;
     }
     .currentMovie {
         font-size: 16px;
@@ -70,9 +79,6 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 1000px) {
-    .popularMovie .media-heading {
-        width: 100px;
-    }
     .popularMovie h3,
     .popularMovie .media-heading {
         font-size: 12px;
