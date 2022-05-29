@@ -45,13 +45,13 @@ h1, h2, h3, h4 {
 .movie-grid {
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(3, 33%);
+    grid-template-columns: 1fr 1fr 1fr;
     min-height: 200px; /* reserve space even before content is loaded */
 }
 
 @media screen and (min-width: 992px) {
     .movie-grid {
-        grid-template-columns: repeat(5, 20%);
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     }    
 }
 
@@ -63,6 +63,10 @@ h1, h2, h3, h4 {
     cursor: pointer;
 }
 
+.popularMovie .media {
+    display: flex;
+}
+
 .popularMovie .media-heading {
     white-space: nowrap;
     overflow: hidden;
@@ -70,11 +74,13 @@ h1, h2, h3, h4 {
 }
 .currentMovie img {
     max-height: 300px;
+    max-width: 100%;
 }
 
 @media (min-width: 1200px) {
     .popularMovie .media-heading {
-        font-size: 18px;
+        font-size: 16px;
+        font-weight: bold;
     }
     .currentMovie {
         font-size: 16px;
@@ -140,15 +146,21 @@ h1, h2, h3, h4 {
 }
 .label { /*reset bootstrap*/ color: #555; }
 
+.reviews {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 .review {
-    float:left; text-align: left;
-    max-width: 40%;
-    font-style: italic; font-weight: 500; font-size: 22px;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-family: serif;
+    border: solid 1px #ddd;
+    padding: 10px;
 }
 .review .score {
     font-family: Arial; font-weight: bold; 
 }
-.review + .review { margin-left: 40px; }
 
 .review--small {
     padding: 5px; margin: 10px;

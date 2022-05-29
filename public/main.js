@@ -21,11 +21,16 @@ $(document).ready(function () {
 });
 
 var fetchDataForOneFilmAndDisplayItsReviews = async function (movieUrl, searchByUrlParam) {
-    const reviewArray = await getReviewArrayAsync(movieUrl);
+    let reviewArray = await getReviewArrayAsync(movieUrl);
     if (searchByUrlParam) {
         setUrlHash(movieUrl);
     }
     populateMovieScoreByCriticsHTML(reviewArray);
+
+    //Max 4 reviews, top2 and bottom2
+    if (reviewArray.length > 4) {
+        reviewArray = [reviewArray[0], reviewArray[1], reviewArray[reviewArray.length-2], reviewArray[reviewArray.length-1]];
+    }
     viewModel.Reviews(reviewArray);
 };
 
@@ -220,7 +225,7 @@ var getReviewArrayAsync = async function (urlEncodedTitle) {
 
     const movieDetailsResponse = await (await getMovieDetails(url));
     if (!movieDetailsResponse.ok) {
-        alert("fel");
+        console.error("Call failed:", url);
         return;
     }
     const movieData = await movieDetailsResponse.json();

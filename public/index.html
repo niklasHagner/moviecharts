@@ -129,7 +129,7 @@
         <section class="row">
             <div class="col-md-10 col-md-offset-2">
                 <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
-                <div class="center-block" data-bind="foreach: Reviews">
+                <div class="center-block reviews" data-bind="foreach: Reviews">
                     <div class="review">
                         <span data-bind="text: $data.text"></span>
                         <span class="score" data-bind="text: $data.score + '/100'"></span>
