@@ -31,13 +31,37 @@ var getCrossDomainData = function (requestUrl) {
         }
     });
     return deferred.promise();
-
-    // fetch(url)
-    //     .then((response) => {
-    //         return response.data;
-    //     });
 };
 
+var getReviewsAsync = async function (requestUrl) {
+    var url = window.location.origin + "/scrape?url=" + encodeURIComponent(requestUrl);
+    const response = await fetch(url);
+    const html = await response.text();
+    var reviewArray = [];
+    var reviews = jQuery(html).find(".review");
+    //note: this is a jquery object, not a JS array
+    if (reviews.length == 0) {
+        return [];
+    }
+
+    reviews.each(function (index, elem) {
+        var e = jQuery(elem).find(".summary a");
+        if (e && e.html && e.html()) {
+            reviewArray.push({
+                text: e.html().trim(),
+                score: jQuery(elem).find(".metascore_w").html()
+            });
+        }
+    });
+
+    return reviewArray;
+};
+
+var getMovieDetails = async function (requestUrl) {
+    const url = window.location.origin + "/getMovieDetails?url=" + encodeURIComponent(requestUrl);
+    const data = await fetch(url);
+    return data;
+};
 
 function filterData(data) {
     // filter all the nasties out

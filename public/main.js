@@ -20,16 +20,13 @@ $(document).ready(function () {
     });
 });
 
-var fetchDataForOneFilmAndDisplayItsReviews = function (movieUrl, searchByUrlParam) {
-    getCriticsHTMLAsync(movieUrl).then(function (criticsHTML) {
-        if (searchByUrlParam) {
-            setUrlHash(movieUrl);
-        }
-        populateMovieScoreByCriticsHTML(criticsHTML);
-        var reviews = getReviews(criticsHTML);
-        reviews = (reviews.length > 2) ? [reviews[0]].concat(reviews[reviews.length - 1]) : reviews;
-        viewModel.Reviews(reviews);
-    });
+var fetchDataForOneFilmAndDisplayItsReviews = async function (movieUrl, searchByUrlParam) {
+    const reviewArray = await getReviewArrayAsync(movieUrl);
+    if (searchByUrlParam) {
+        setUrlHash(movieUrl);
+    }
+    populateMovieScoreByCriticsHTML(reviewArray);
+    viewModel.Reviews(reviewArray);
 };
 
 var firstTimeLoading = false;
@@ -79,35 +76,13 @@ var movieListColumnClass = function () {
     return "col-md-" + bootstrapWidth + "col-md-offset-" + bootstrapOffset;
 };
 
-var getReviews = function (html) {
-    var reviewArray = [];
-    var reviews = jQuery(html).find(".review");
-    //note: this is a jquery object, not a JS array
-
-    if (reviews.length == 0) {
-        return [];
-    }
-
-    reviews.each(function (index, elem) {
-        var e = jQuery(elem).find(".summary a");
-        if (e && e.html && e.html()) {
-            reviewArray.push({
-                text: e.html().trim(),
-                grade: jQuery(elem).find(".metascore_w").html()
-            });
-        }
-    });
-
-    return reviewArray;
-};
-
-var populateMovieScoreByCriticsHTML = function (html) {
+var populateMovieScoreByCriticsHTML = function (reviewArray) {
     //options
     var NORMALIZE_SCORES = true;
     var PERCENTAGE_SCORES = true;
-    //vars
-    var allScores = parseScoresFromMetaCriticHTML(html).reverse();
-    var scoresAndCounts = getScoresAndCountsFromScores(allScores);
+    //Example object: { score: 90, text "a good movie" } 
+    const allScores = reviewArray.map(x => Number(x.score));
+    const scoresAndCounts = getScoresAndCountsFromScores(allScores);
     viewModel.Scores(allScores);
     viewModel.ScoresAndCounts(scoresAndCounts);
 
@@ -125,14 +100,8 @@ var populateMovieScoreByCriticsHTML = function (html) {
         yValues = counts;
     }
     else {
-        var uniqueCounts = [];
-        var uniqueScores = [];
-        var labelsAndData = scoresAndCounts.forEach(function (el) {
-            uniqueScores.push(el.score);
-            uniqueCounts.push(el.count);
-        });
-        yValues = uniqueCounts;
-        xValues = uniqueScores;
+        yValues = [];
+        xValues = [];
     }
 
     if (PERCENTAGE_SCORES) {
@@ -244,73 +213,71 @@ var getFirstPageAsync = function () {
    
 };
 
-var getCriticsHTMLAsync = function (urlEncodedTitle) {
+var getReviewArrayAsync = async function (urlEncodedTitle) {
     ///search for a movie and populate the page
 
     var url = movieUrl = urlBase + urlEncodedTitle + urlEnd;
 
-    var deferred = jQuery.Deferred();
-    getCrossDomainData(url)
-        .done(function (moviePageHTML) {
-            setMovieName(getMovieNameFromHTML(moviePageHTML));
-            viewModel.Movie.ImgSrc(getImgSrcFromHTML(moviePageHTML));
-            viewModel.Movie.Description(getDescriptionFromHTML(moviePageHTML));
-            getCrossDomainData(url + "/critic-reviews")
-                .done(function (criticsHTML) {
-                    viewModel.SearchError("");
-                    deferred.resolve(criticsHTML);
-                })
-                .fail(function () {
-                    viewModel.Scores([]);
-                    viewModel.ScoresAndCounts([]);
-                    viewModel.SearchError("No reviews found. Try again!");
-                    deferred.reject();
-                    throw Error("getCrossDomainData promise failure :'( ...");
-                });
-        })
-        .fail(function () {
-            viewModel.SearchError("No results found. Try again!");
-            deferred.reject();
-            throw Error("getCrossDomainData promise failure :'( ...");
-        });
-    return deferred.promise();
+    const movieDetailsResponse = await (await getMovieDetails(url));
+    if (!movieDetailsResponse.ok) {
+        alert("fel");
+        return;
+    }
+    const movieData = await movieDetailsResponse.json();
+    viewModel.Movie.Name(movieData.name);
+    viewModel.Movie.Description(movieData.description);
+    viewModel.Movie.ImgSrc(movieData.img);
+    
+    //returns array of {score: "90", text: ""}
+    const reviewArray = await getReviewsAsync(url + "/critic-reviews");
+    if (!movieDetailsResponse.ok) {
+        viewModel.Scores([]);
+        viewModel.ScoresAndCounts([]);
+        viewModel.SearchError("No reviews found. Try again!");
+        throw Error("getCrossDomainData promise failure :'( ...");
+        return [];
+    }
+    viewModel.SearchError("");
+    return reviewArray;
 };
 
+/*
+Input: [90,90,80]
+Output: [{score: 90, count: 2}, {score: 80, count: 1}]
+*/
 var getScoresAndCountsFromScores = function (scores) {
-    var scoresAndCounts = []; // {score=95, count=1}
-    scores.forEach(function (x, ix) {
-        var indexOfExisting = -1;
-        scoresAndCounts.forEach(function (el, ix) {
-            if (el.score === x)
-                indexOfExisting = ix;
-        });
-        if (indexOfExisting > -1) { //increase count for existing item
-            scoresAndCounts[indexOfExisting].count += 1;
-        }
-        else { 
-            scoresAndCounts.push({
-                score: x,
-                count: 1
-            });
-        }
-    });
-    scoresAndCounts = scoresAndCounts.sort(function (a, b) {
-        if (a.score > b.score) {
-            return 1;
-        }
-    });
-    return scoresAndCounts;
+    let reducedArray = scores.reduce( (acc, curr, _, arr) => {
+        if (acc.length == 0) acc.push({score: curr, count: 1})
+        else if (acc.findIndex(f => f.score === curr ) === -1) acc.push({score: curr, count: 1})
+        else ++acc[acc.findIndex(f => f.score === curr)].count
+        return acc
+    }, []);
+    return reducedArray;
 };
+
+/*
+Metacritic has two html structures
+* old https://www.metacritic.com/movie/the-janes
+* new https://www.metacritic.com/movie/top-gun-maverick
+*/
 
 var getMovieNameFromHTML = function (html) {
-    return jQuery(html).find(".product_page_title h1").html().trim();
+    let titleEl = jQuery(html).find(".product_page_title h1");
+    if (titleEl.length === 0) {
+        titleEl = jQuery(html).find(".c-entertainmentProductInfoCard_info h1");
+    }
+    
+    return titleEl.text().trim();
 };
 
 var getImgSrcFromHTML = function (html) {
-    var selector = ".summary_img";
-    var elems = jQuery(html).find(selector);
-    if (elems.length == 0) {
-        console.error("Damnit. MetaCritic changed their img markup and broke this web scraper");
+    var elems = jQuery(html).find(".summary_img");
+    if (elems.length === 0) {
+        elems = jQuery(html).find(".c-cmsImage");
+        if (elems.length === 0) {
+            console.error("Damnit. MetaCritic changed their img markup and broke this web scraper");
+            return "";
+        }
     }
     return elems.get(0)["src"];
 };
@@ -321,27 +288,29 @@ var getDescriptionFromHTML = function (html) {
         elems = jQuery(html).find(".summary_deck.details_section");
     }
     if (elems.length == 0) {
-        console.error("Damnit. MetaCritic changed their description markup and broke this web scraper");
-        return "";
+        elems = jQuery(html).find(".c-entertainmentProductDetails_description");
+        if (elems.length == 0) {
+            console.error("Damnit. MetaCritic changed their description markup and broke this web scraper");
+            return "";
+        }
     }
-    return elems.get(0).innerHTML;
+    return elems.get(0).innerText;
 };
 
-var parseScoresFromMetaCriticHTML = function (html) {
-    var movieScoresSelector = ".review .metascore_w";
-    var tagsWithScores = jQuery(html).find(movieScoresSelector);
-    if (tagsWithScores.length == 0) {
-        console.error("Damnit. MetaCritic changed their markup for `review .metascore_w`");
-        return [];
-    }
-    var scoreArray = [];
-    var scoresJqArray = tagsWithScores.map(function (index, elem) {
-        scoreArray.push(Number(elem.innerHTML));
-        return Number(elem.innerHTML);
-    });
-    return scoreArray;
-};
-
+// var parseScoresFromMetaCriticHTML = function (html) {
+//     var movieScoresSelector = ".review .metascore_w";
+//     var tagsWithScores = jQuery(html).find(movieScoresSelector);
+//     if (tagsWithScores.length == 0) {
+//         console.error("Damnit. MetaCritic changed their markup for `review .metascore_w`");
+//         return [];
+//     }
+//     var scoreArray = [];
+//     var scoresJqArray = tagsWithScores.map(function (index, elem) {
+//         scoreArray.push(Number(elem.innerHTML));
+//         return Number(elem.innerHTML);
+//     });
+//     return scoreArray;
+// };
 
 var transformFirstPageHtmlToMoviesJson = function (html) {
     var htmlMovies = jQuery(html).find(".image_strip .product").toArray();
@@ -350,9 +319,9 @@ var transformFirstPageHtmlToMoviesJson = function (html) {
     }
     var movies = [];
     htmlMovies.forEach(function (x) {
-        var title = jQuery(x).find(".title_wrapper a span").html().trim();
+        var title = jQuery(x).find(".title_wrapper a span").text().trim();
         var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
-        var score = jQuery(x).find(".metascore_w").html();
+        var score = jQuery(x).find(".metascore_w").text();
         var isOnStreamingServices = jQuery(x).closest(".watch_now").length > 0;
         movies.push({
             Title: title,

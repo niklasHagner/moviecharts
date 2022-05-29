@@ -69,7 +69,7 @@
                 <div class="col-lg-4 col-md-offset-4" data-bind="css: {'has-error': SearchError().length > 1}">
                     <form data-bind="submit: SearchClick">
                         <div class="input-group">
-                            <input id="searchBox" type="text" class="form-control" placeholder="Search for...">
+                            <input id="searchBox" type="text" class="form-control" placeholder="Movie title">
                             <span class="input-group-btn">
                                 <button id="searchButton" onclick="searchClick()" class="btn btn-primary"
                                     type="button">Search</button>
@@ -116,30 +116,23 @@
         </article>
 
         <section class="row">
-            <div class="col-md-10 col-md-offset-2">
-                <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
-                <div class="center-block" data-bind="foreach: Reviews">
-                    <div class="review">
-                        <!-- ko if: $index() == 0 -->
-                        👍
-                        <!-- /ko -->
-                        <!-- ko if: $index() != 0 -->
-                        👎
-                        <!-- /ko -->
-                        <span data-bind="text: $data.text"></span>
-                        <span class="grade" style="" data-bind="text: $data.grade + '/100'"></span>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <section class="row">
             <div class="center-text col-md-8 col-md-offset-2">
                 <h3 data-bind="text: Scores().length + ' review scores'"></h3>
                 <div data-bind="foreach: Scores">
                     <div class="scoreCard" style="text-align: left">
                         <span data-bind="text: $data"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row">
+            <div class="col-md-10 col-md-offset-2">
+                <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
+                <div class="center-block" data-bind="foreach: Reviews">
+                    <div class="review">
+                        <span data-bind="text: $data.text"></span>
+                        <span class="score" data-bind="text: $data.score + '/100'"></span>
                     </div>
                 </div>
             </div>
