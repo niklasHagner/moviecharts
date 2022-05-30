@@ -1,14 +1,10 @@
 <section class="row" style="margin-top: 20px;">
 	<!--ko:forEach: Movie-->
-	<div data-bind="css: '$parent.MovieListColumnClass'">
+	<div>
 		<div class="media">
-			<div class="media-left">
-				<a data-bind="href: Url">
-					<img class="media-object" data-bind="attr: {src: ImgSrc}">
-				</a>
-			</div>
+			<img class="media-object" data-bind="attr: {src: ImgSrc}">
 			<div class="media-body">
-				<small><h4 class="media-heading" data-bind="text: Name, href: Url">Loading</h4></small>
+				<h4 class="media-heading" data-bind="text: Name, href: Url">Loading</h4>
 				<p class="small" data-bind="html: Description"></p>
 			</div>
 		</div>

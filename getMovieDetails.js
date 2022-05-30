@@ -4,28 +4,36 @@ const { JSDOM } = jsdom;
 async function getMovieDetails(html) {
   const dom = new JSDOM(html);
   const document = dom.window.document;
-  const name = getMovieNameFromDoc(document);
-  const img = getImgSrcFromDoc(document);
-  const description = getDescriptionFromDoc(document);
+  const jsonMetadataElement = document.querySelector("script[type='application/ld+json']");
+  let jsonLD;
+  if (jsonMetadataElement) {
+    jsonLD = JSON.parse(jsonMetadataElement.innerHTML);
+    if (jsonLD.mainEntity) {
+      jsonLD = jsonLD.mainEntity;
+    }
+  }
+  const name = getMovieNameFromDoc(document, jsonLD);
+  const img = getImgSrcFromDoc(document, jsonLD);
+  const description = getDescriptionFromDoc(document, jsonLD);
 
-  const json = {
+  const film = {
     name,
     img,
     description
   }
-  return json;
+  return film;
 }
 
 /*
-Metacritic has two html structures
-* old https://www.metacritic.com/movie/the-janes
-* new https://www.metacritic.com/movie/top-gun-maverick
+Note: Metacritic has two different html structures
+* old https://www.metacritic.com/movie/the-janes - the image exists in the initial html
+* new https://www.metacritic.com/movie/top-gun-maverick - the image does not exist in the initial html, use jsonLD -> mainEntity
+* https://www.metacritic.com/movie/dirty-harry - jsonLD doesn't have mainEntity
 */
 
-function getMovieNameFromDoc(document) {
-  const jsonLD = document.querySelector("script[type='application/ld+json']");
+function getMovieNameFromDoc(document, jsonLD) {
   if (jsonLD) {
-    return JSON.parse(jsonLD.innerHTML).mainEntity.name;
+    return jsonLD.name;
   }
 
   let titleEl = document.querySelector(".product_page_title h1");
@@ -35,10 +43,9 @@ function getMovieNameFromDoc(document) {
   return titleEl.textContent.trim();
 };
 
-function getImgSrcFromDoc(document) {
-  const jsonLD = document.querySelector("script[type='application/ld+json']");
+function getImgSrcFromDoc(document, jsonLD) {
   if (jsonLD) {
-    return JSON.parse(jsonLD.innerHTML).mainEntity.image;
+    return jsonLD.image;
   }
 
   var elem = document.querySelector(".summary_img");
@@ -52,10 +59,9 @@ function getImgSrcFromDoc(document) {
   return elem["src"];
 };
 
-function getDescriptionFromDoc(document) {
-  const jsonLD = document.querySelector("script[type='application/ld+json']");
+function getDescriptionFromDoc(document, jsonLD) {
   if (jsonLD) {
-    return JSON.parse(jsonLD.innerHTML).mainEntity.description;
+    return jsonLD.description;
   }
 
   let elem = document.querySelector(".blurb_expanded");

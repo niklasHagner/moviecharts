@@ -7,9 +7,6 @@
     <script src="getExampleHtml.js"></script>
     <script srC="libs/knockout.js"></script>
     <script src="libs/underscore.js"></script>
-    <!--<script src="chartbundle.js"></script>-->
-    <script src="libs/chart.js"></script>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="fontfaces.css" type="text/css" rel="stylesheet">
     <link href="style.css" type="text/css" rel="stylesheet">
 </head>
@@ -22,51 +19,49 @@
             </div>
         </nav>
 
-        <h2>In Theaters</h2>
-        <section class="movie-grid" data-bind="foreach: NewReleases">
-            <div data-bind="css: 'popularMovie'">
-                <div class="media">
-                    <div class="media-left">
-                        <!--<a data-bind="href: Url">
-						<img class="media-object" data-bind="attr: {src: ImgSrc}">
-					</a>-->
-                        <h3 style="margin-top:0; padding-top:0;" data-bind="text: Score"></h3>
+        <div class="movie-grids">
+            <div class="movie-grid-wrap">
+                <h2>In Theaters</h2>
+                <section class="movie-grid" data-bind="foreach: NewReleases">
+                    <div data-bind="css: 'popularMovie'">
+                        <div class="media">
+                            <div class="media-left">
+                                <!--<img class="media-object" data-bind="attr: {src: ImgSrc}">-->
+                                <number data-bind="text: Score"></number>
+                            </div>
+                            <div class="media-body">
+                                <a class="title-link" data-bind="click: searchClick"">
+                                    <span class=" media-heading" data-bind="text: Title">Loading</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="media-body">
-                        <small>
-                            <a class="title-link" data-bind="click: searchClick"">
-						    <p class=" media-heading" data-bind="text: Title">Loading</p>
-                            </a>
-                        </small>
-                    </div>
-                </div>
+                </section>
             </div>
-        </section>
-
-        <h2>On Netflix</h2>
-        <section class="movie-grid" data-bind="foreach: MoviesOnStreamingServices">
-            <div data-bind="css: 'popularMovie'">
-                <div class="media">
-                    <div class="media-left">
-                        <!--<a data-bind="href: Url">
-						<img class="media-object" data-bind="attr: {src: ImgSrc}">
-					</a>-->
-                        <h3 style="margin-top:0; padding-top:0;" data-bind="text: Score"></h3>
+    
+            <div class="movie-grid-wrap">
+                <h2>On Netflix</h2>
+                <section class="movie-grid movie-grid--netflix" data-bind="foreach: MoviesOnStreamingServices">
+                    <div data-bind="css: 'popularMovie'">
+                        <div class="media">
+                            <div class="media-left">
+                                <!--<img class="media-object" data-bind="attr: {src: ImgSrc}">-->
+                                <number data-bind="text: Score"></number>
+                            </div>
+                            <div class="media-body">
+                                <a class="title-link" data-bind="click: searchClick"">
+                                    <span class=" media-heading" data-bind="text: Title">Loading</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="media-body">
-                        <small>
-                            <a class="title-link" data-bind="click: searchClick"">
-						    <p class=" media-heading" data-bind="text: Title">Loading</p>
-                            </a>
-                        </small>
-                    </div>
-                </div>
+                </section>
             </div>
-        </section>
+        </div>
 
         <div class="page-header">
             <section class="row">
-                <div class="col-lg-4 col-md-offset-4" data-bind="css: {'has-error': SearchError().length > 1}">
+                <div style="text-align: center; padding: 20px;" data-bind="css: {'has-error': SearchError().length > 1}">
                     <form data-bind="submit: SearchClick">
                         <div class="input-group">
                             <input id="searchBox" type="text" class="form-control" placeholder="Movie title">
@@ -87,53 +82,35 @@
         </div>
 
         <article class="row currentMovie" data-bind='fadeVisible: currentMovie'>
-            <section class="col-md-11 col-md-offset-1">
-                <div class="col-md-5 col-md-offset-x">
-                    <div class="media">
-                        <div class="media-left">
-                            <a data-bind="href: Movie.Url">
-                                <img class="media-object" data-bind="attr: {src: Movie.ImgSrc}">
-                            </a>
-                        </div>
-                        <div class="media-body">
-                            <small>
-                                <h1 class="media-heading fade-in" data-bind="text: Movie.Name, href: Movie.Url">Loading
-                                </h1>
-                            </small>
-                            <p class="small" data-bind="html: Movie.Description"></p>
-                        </div>
-                    </div>
+            <div class="grid-50-50" style="column-gap: 20px;">
+                <img data-bind="attr: {src: Movie.ImgSrc}">
+                <div class="focus-movie-details">
+                    <h2 data-bind="text: Movie.Name, href: Movie.Url">Loading</h2>
+                    <p class="small" data-bind="html: Movie.Description"></p>
                 </div>
-                <div class="col-md-6">
-                    <div>
-                        <span class="legend">↑ Reviewers</span>
-                        <canvas id="canvas" height="700" width="1200"></canvas>
-                        <!--<canvas id="bubbleChartCanvas" height="700" width="1200"></canvas>-->
-                        <p style="text-align: center" class="legend">Score ⇾</p>
-                    </div>
-                </div>
-            </section>
+            </div>
+            <div class="chart-wrap">
+                <figure class="highcharts-figure">
+                    <div id="highcharts-container"></div>
+                </figure>
+            </div>
         </article>
 
         <section class="row">
-            <div class="center-text col-md-8 col-md-offset-2">
-                <h3 data-bind="text: Scores().length + ' review scores'"></h3>
-                <div data-bind="foreach: Scores">
-                    <div class="scoreCard" style="text-align: left">
-                        <span data-bind="text: $data"></span>
-                    </div>
+            <h3 data-bind="text: Scores().length + ' review scores'"></h3>
+            <div data-bind="foreach: Scores" class="scoreCards">
+                <div class="scoreCard" style="text-align: left">
+                    <span data-bind="text: $data"></span>
                 </div>
             </div>
         </section>
 
         <section class="row">
-            <div class="col-md-10 col-md-offset-2">
-                <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
-                <div class="center-block reviews" data-bind="foreach: Reviews">
-                    <div class="review">
-                        <span data-bind="text: $data.text"></span>
-                        <span class="score" data-bind="text: $data.score + '/100'"></span>
-                    </div>
+            <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
+            <div class="center-block reviews" data-bind="foreach: Reviews">
+                <div class="review">
+                    <span data-bind="text: $data.text"></span>
+                    <span class="score" data-bind="text: $data.score + '/100'"></span>
                 </div>
             </div>
         </section>
@@ -142,12 +119,9 @@
     <footer>
         Ⓒ Hagge
     </footer>
-
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="core.js"></script>
+    <script src="arrayHelper.js"></script>
+    <script src="main.js"></script>
 </body>
-<script src="core.js"></script>
-<script src="chartUtil.js"></script>
-<script src="handleCharts.js"></script>
-<script src="arrayHelper.js"></script>
-<script src="main.js"></script>
-
 </html>

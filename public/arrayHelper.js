@@ -140,10 +140,10 @@ getOccurances(['a','a','b','c','c','c','c']);
 OUTPUT: {a: 2, b: 1, c: 4}
 */
 function getOccurances(arr) {
-function count(arr) {
-  return arr.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {})
-}
-return count(arr);
+  function count(arr) {
+    return arr.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {})
+  }
+  return count(arr);
 }
 
 

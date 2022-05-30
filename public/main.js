@@ -72,13 +72,6 @@ var viewModel = {
     SearchClick: searchClick,
     NewReleases: ko.observableArray([]),
     MoviesOnStreamingServices: ko.observableArray([]),
-    MovieListColumnClass: movieListColumnClass
-};
-
-var movieListColumnClass = function () {
-    var bootstrapWidth = Math.floor(viewModel.NewReleases().length / 12);
-    var bootstrapOffset = 0;
-    return "col-md-" + bootstrapWidth + "col-md-offset-" + bootstrapOffset;
 };
 
 var populateMovieScoreByCriticsHTML = function (reviewArray) {
@@ -122,40 +115,61 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
         yValues = percentages;
     }
 
-    var barchartdata = getBarChartData(yValues, xValues);
-    bindBarChart(barchartdata);
-
-    //var bubbleData = getBubbleChartData(allScores);
-    //bindBubbleChart();
-};
-
-
-var bindBarChart = function (data) {
-    if (firstTimeLoading)
-        window.myBar.reflow();
-    else {
-        if (window.myBar)
-            window.myBar.destroy();
-    }
-    var ctx = document.getElementById("canvas").getContext("2d");
-    var options = {
-        responsive: true,
-        animation: true,
-        scaleLabel: "<%= (Number(value) + '%')   %>",
-        scaleShowLabelBackdrop: true,
-        scaleShowLabels: true,
-        scaleBeginAtZero: true,
-        tooltipTemplate: "<%= value + '% of the reviewers gave it ' + label + '/100' %>"
-    };
-    window.myBar = new Chart(ctx).Bar(data, options);
-
-    //color each bar by score 
-    myBar.datasets[0].bars.map(function (bar, ix) {
-        bar.fillColor = window.chartColorArray[ix]; 
-        //getColorByScore(ix);
+    Highcharts.chart('highcharts-container', {
+        chart: {
+          type: 'column',
+          style: {
+              fontFamily: "Oswald, Helvetica, sans-serif",
+          }
+        },
+        title: {
+          text: 'Review scores'
+        },
+        legend: { enabled:false },
+        subtitle: { enabled:false },
+        xAxis: {
+          categories: [
+            '0%',
+            '10%',
+            '20%',
+            '30%',
+            '40%',
+            '50%',
+            '60%',
+            '70%',
+            '80%',
+            '90%',
+            '100%',
+          ],
+          crosshair: true
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Reviewers'
+          }
+        },
+        tooltip: {
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} % of reviewers</b></td></tr>',
+          footerFormat: '</table>',
+          shared: true,
+          useHTML: true
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+          name: 'Grades',
+          data: percentages
+        }]
     });
-    myBar.update();
 };
+
 
 var bindView = function () {
     if (firstTimeLoading)

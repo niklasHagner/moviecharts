@@ -38,4 +38,3 @@ remember this was built in 2016
 * knockoutJs for data-binding
 * chartJs.org for bar-charts
 * jQuery for fetching and queryselectors
-* bootstrap for basic layout, search form and fonts.

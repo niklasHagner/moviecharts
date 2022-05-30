@@ -1,11 +1,5 @@
 var movieListViewModel = {
-    MovieListColumnClass: movieListContainerClsas,
     Movies: ko.observableArray([])
-};
-var movieListColumnClass = function () {
-    var bootstrapWidth = Math.floor(movieListViewModel.Movies().length / 12);
-    var bootstrapOffset = 0;
-    return "col-md-" + bootstrapWidth + "col-md-offset-" + bootstrapOffset;
 };
 
 var addMovie = function () {

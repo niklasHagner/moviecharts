@@ -9,14 +9,12 @@ var setUrlHash = function (value) {
     window.location.hash = encodeURIComponent(value.replace(/\+/g, " "));
 };
 
-
 var getParameterByName = function (name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 };
-
 
 var getCrossDomainData = function (requestUrl) {
     var url = window.location.origin + "/scrape?url=" + encodeURIComponent(requestUrl);
