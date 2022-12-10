@@ -119,7 +119,7 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
         chart: {
           type: 'column',
           style: {
-              fontFamily: "Oswald, Helvetica, sans-serif",
+              fontFamily: "'Alfa Slab One', Helvetica, sans-serif",
           }
         },
         title: {
@@ -141,12 +141,13 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
             '90%',
             '100%',
           ],
-          crosshair: true
+          crosshair: true,
+          style: { fontSize: '16px' }
         },
         yAxis: {
           min: 0,
           title: {
-            text: 'Reviewers'
+            text: 'Reviewers', style: { fontSize: '16px' }
           }
         },
         tooltip: {
