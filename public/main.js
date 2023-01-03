@@ -226,11 +226,6 @@ var getFirstPageAsync = function () {
         });
 
     return deferred.promise();
-
-    // return new Promise((resolve, reject) => {
-    //      return resolve(window.getExampleHtml());
-    //  });
-   
 };
 
 var getReviewArrayAsync = async function (urlEncodedTitle) {
