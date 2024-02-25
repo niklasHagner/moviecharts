@@ -173,6 +173,11 @@ function sortByProperty(arr, property) {
   return arr.sort((a,b) => b[property] - a[property]);
 }
 
+//Sorts by true first
+function sortByBoolProperty(arr, property) {
+  return arr.sort((a,b) => a[property] === b[property] ? 0 : (a[property] ? -1 : 1) );
+}
+
 /* 
 getUniqueByValue([{age:30},{age:20},{age:20}], 'age')
 
