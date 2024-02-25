@@ -328,16 +328,16 @@ var getDescriptionFromHTML = function (html) {
 // };
 
 var transformFirstPageHtmlToMoviesJson = function (html) {
-    var htmlMovies = jQuery(html).find(".image_strip .product").toArray();
+    var htmlMovies = jQuery(html).find(".c-globalProductCard").toArray();
     if (htmlMovies.length == 0) {
         throw new Error("Damnit. MetaCritic changed their markup and broke this web scraper");
     }
     var movies = [];
     htmlMovies.forEach(function (x) {
-        var title = jQuery(x).find(".title_wrapper a span").text().trim();
-        var url = jQuery(x).find(".title_wrapper a").attr("href").replace("/movie/", "");
-        var score = jQuery(x).find(".metascore_w").text();
-        var isOnStreamingServices = jQuery(x).closest(".watch_now").length > 0;
+        var title = jQuery(x).find(".c-globalProductCard_title").text().trim();
+        var url = jQuery(x).find("a.c-globalProductCard_container").attr("href").replace("/movie/", "");
+        var score = jQuery(x).find(".c-siteReviewScore span").text();
+        var isOnStreamingServices = jQuery(x).closest('[data-cy="movies-in-theaters-0"]').length > 0;
         movies.push({
             Title: title,
             Score: score,

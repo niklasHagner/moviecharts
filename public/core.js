@@ -35,21 +35,32 @@ var getReviewsAsync = async function (requestUrl) {
     var url = window.location.origin + "/scrape?url=" + encodeURIComponent(requestUrl);
     const response = await fetch(url);
     const html = await response.text();
-    var reviewArray = [];
-    var reviews = jQuery(html).find(".review");
-    //note: this is a jquery object, not a JS array
-    if (reviews.length == 0) {
-        return [];
-    }
 
-    reviews.each(function (index, elem) {
-        var e = jQuery(elem).find(".summary a");
-        if (e && e.html && e.html()) {
-            reviewArray.push({
-                text: e.html().trim(),
-                score: jQuery(elem).find(".metascore_w").html()
-            });
+    var nodes = jQuery.parseHTML(html, true);
+    let relevantScriptInnerHTML;
+    jQuery.each( nodes, function( i, el ) {
+      if (el.nodeName === "SCRIPT") {
+        if (el.innerHTML.indexOf('window.__NUXT__') > -1) {
+          relevantScriptInnerHTML = el.innerHTML;
+          return false;
         }
+      }
+    });
+    
+    // All data is baked into a function that is run when injecting this script running script 
+    // It will create `window.__NUXT__` which contains all the data we need
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.innerHTML = relevantScriptInnerHTML;
+
+    $('body').append(script);
+
+    const reviews = window.__NUXT__.data[0].content.components[2].items;
+    const reviewArray = reviews.map((review) => { 
+        return {
+            text: review.quote + " /" + review.publicationName,
+            score: review.score
+        };
     });
 
     return reviewArray;
