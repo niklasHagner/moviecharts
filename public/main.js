@@ -337,7 +337,7 @@ var transformFirstPageHtmlToMoviesJson = function (html) {
         var title = jQuery(x).find(".c-globalProductCard_title").text().trim();
         var url = jQuery(x).find("a.c-globalProductCard_container").attr("href").replace("/movie/", "");
         var score = jQuery(x).find(".c-siteReviewScore span").text();
-        var isOnStreamingServices = jQuery(x).closest('[data-cy="movies-in-theaters-0"]').length > 0;
+        var isOnStreamingServices = jQuery(x).attr("data-cy")?.indexOf("in-theaters") > -1 ? false : true;
         movies.push({
             Title: title,
             Score: score,
