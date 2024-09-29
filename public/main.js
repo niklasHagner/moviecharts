@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    window.viewData = {};
     firstTimeLoading = true;
     var param_MovieName = getUrlHash();
     if (param_MovieName !== null || param_MovieName !== "") {
@@ -21,17 +22,10 @@ $(document).ready(function () {
 });
 
 var fetchDataForOneFilmAndDisplayItsReviews = async function (movieUrl, searchByUrlParam) {
-    let reviewArray = await getReviewArrayAsync(movieUrl);
+    await getReviewArrayAsync(movieUrl);
     if (searchByUrlParam) {
         setUrlHash(movieUrl);
     }
-    populateMovieScoreByCriticsHTML(reviewArray);
-
-    //Max 4 reviews, top2 and bottom2
-    if (reviewArray.length > 4) {
-        reviewArray = [reviewArray[0], reviewArray[1], reviewArray[reviewArray.length-2], reviewArray[reviewArray.length-1]];
-    }
-    viewModel.Reviews(reviewArray);
 };
 
 var firstTimeLoading = false;
@@ -83,6 +77,8 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
     const scoresAndCounts = getScoresAndCountsFromScores(allScores);
     viewModel.Scores(allScores);
     viewModel.ScoresAndCounts(scoresAndCounts);
+    window.movieData.scores = allScores;
+    window.dispatchEvent(new Event('movieDataChange'));
 
     var yValues = [], xValues = [];
     if (NORMALIZE_SCORES) {
@@ -170,6 +166,8 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
           data: percentages
         }]
     });
+
+    const x = 1;
 };
 
 
@@ -230,8 +228,6 @@ var getFirstPageAsync = function () {
 };
 
 var getReviewArrayAsync = async function (urlEncodedTitle) {
-    ///search for a movie and populate the page
-
     var url = movieUrl = urlBase + urlEncodedTitle + urlEnd;
 
     const movieDetailsResponse = await (await getMovieDetails(url));
@@ -240,21 +236,34 @@ var getReviewArrayAsync = async function (urlEncodedTitle) {
         return;
     }
     const movieData = await movieDetailsResponse.json();
-    viewModel.Movie.Name(movieData.name);
-    viewModel.Movie.Description(movieData.description);
-    viewModel.Movie.ImgSrc(movieData.img);
+
+    window.movieData = movieData;
+    window.movieData.scores = [];
+    window.movieData.scoresAndCounts = [];
+    window.dispatchEvent(new Event('movieDataChange'));
     
     //returns array of {score: "90", text: ""}
     const reviewArray = await getReviewsAsync(url + "/critic-reviews");
     if (!movieDetailsResponse.ok) {
-        viewModel.Scores([]);
-        viewModel.ScoresAndCounts([]);
-        viewModel.SearchError("No reviews found. Try again!");
+        window.viewData.searchError = "No reviews found. Try again!";
+        window.dispatchEvent(new Event('movieDataChange'));
+        // viewModel.SearchError("No reviews found. Try again!");
+        console.error("getReviewArrayAsync promise failure for critic reviews");
         throw Error("getCrossDomainData promise failure :'( ...");
-        return [];
+        return;
     }
-    viewModel.SearchError("");
-    return reviewArray;
+    // viewModel.SearchError("");
+    window.viewData.searchError = null;
+    window.dispatchEvent(new Event('globalViewModelChange'));
+    
+    populateMovieScoreByCriticsHTML(reviewArray);
+
+    //Take the 2 best and 2 worst reviews
+    if (reviewArray.length > 4) {
+        reviewArray.splice(2, reviewArray.length - 4);
+    }
+    window.movieData.reviewArray = reviewArray;
+    window.dispatchEvent(new Event('movieDataChange'));
 };
 
 /*

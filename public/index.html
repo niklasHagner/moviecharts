@@ -80,39 +80,8 @@
 
         </div>
 
-        <article class="row currentMovie" data-bind='fadeVisible: currentMovie'>
-            <div class="grid-50-50" style="column-gap: 20px;">
-                <img data-bind="attr: {src: Movie.ImgSrc}">
-                <div class="focus-movie-details">
-                    <h2 data-bind="text: Movie.Name, href: Movie.Url">Loading</h2>
-                    <p class="small" data-bind="html: Movie.Description"></p>
-                </div>
-            </div>
-            <div class="chart-wrap">
-                <figure class="highcharts-figure">
-                    <div id="highcharts-container"></div>
-                </figure>
-            </div>
+        <article id="react-inject-movie">
         </article>
-
-        <section class="row">
-            <h3 data-bind="text: Scores().length + ' review scores'"></h3>
-            <div data-bind="foreach: Scores" class="scoreCards">
-                <div class="scoreCard" style="text-align: left">
-                    <span data-bind="text: $data"></span>
-                </div>
-            </div>
-        </section>
-
-        <section class="row">
-            <h3 class="center-text" data-bind="text: 'Best & worst reviews' "></h3>
-            <div class="center-block reviews" data-bind="foreach: Reviews">
-                <div class="review">
-                    <span data-bind="text: $data.text"></span>
-                    <span class="score" data-bind="text: $data.score + '/100'"></span>
-                </div>
-            </div>
-        </section>
     </main>
 
     <footer>
@@ -122,5 +91,12 @@
     <script src="core.js"></script>
     <script src="arrayHelper.js"></script>
     <script src="main.js"></script>
+
+
+    <!-- React libs without build step -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" src="react-app.js"></script>
 </body>
 </html>
