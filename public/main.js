@@ -119,7 +119,8 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
         chart: {
           type: 'column',
           style: {
-              fontFamily: "'Alfa Slab One', Helvetica, sans-serif",
+              fontFamily: "'Arvo', Helvetica, sans-serif",
+              fontWeight: 400
           }
         },
         title: {
