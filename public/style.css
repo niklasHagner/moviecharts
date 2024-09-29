@@ -50,6 +50,7 @@ h1, h2, h3, h4 {
     display: flex;
     gap: 10px;
     font-family: 'Arvo';
+    text-align: left;
 }
 
 .movie-grids {
@@ -100,7 +101,9 @@ h1, h2, h3, h4 {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.currentMovie img {
+
+.movie {
+  img {
     min-height: 100px;
     min-width: 100px;
     max-height: 300px;
@@ -108,6 +111,10 @@ h1, h2, h3, h4 {
     box-shadow: -4px -4px 1px black;
     border: 4px solid black;
     background: lightblue;
+  }
+  .grid-50-50 {
+    column-gap: 20px;
+  }
 }
 
 @media (min-width: 1200px) {
@@ -183,21 +190,19 @@ h1, h2, h3, h4 {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
-.review {
+.review-card {
     font-size: 14px;
     font-family: Georgia, serif;
     background: #f4f2e5;
     box-shadow: 2px 2px 5px #a7a88d;
     padding: 10px;
-}
-.review .score {
-    font-family: Arial; font-weight: bold; 
+    margin: 10px;
+
+    .score {
+      font-family: 'Arvo';
+    }
 }
 
-.review--small {
-    padding: 5px; margin: 10px;
-    float:left; max-width: 200px; border: solid 1px #ccc;  font-size: 11px;
-}
 
 footer {
     text-align: center;
@@ -213,4 +218,10 @@ footer {
 
 .highcharts-credits {
     display: none;
+}
+
+.review-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 200px auto;
 }
