@@ -18,45 +18,9 @@
             </div>
         </nav>
 
-        <div class="movie-grids">
-            <div class="movie-grid-wrap">
-                <h2>In Theaters 🍿</h2>
-                <section class="movie-grid" data-bind="foreach: NewReleases">
-                    <div data-bind="css: 'popularMovie'">
-                        <div class="media">
-                            <div class="media-left">
-                                <!--<img class="media-object" data-bind="attr: {src: ImgSrc}">-->
-                                <number data-bind="text: Score"></number>
-                            </div>
-                            <div class="media-body">
-                                <a class="title-link" data-bind="click: searchClick"">
-                                    <span class=" media-heading" data-bind="text: Title">Loading</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-    
-            <div class="movie-grid-wrap">
-                <h2>Streaming 📺</h2>
-                <section class="movie-grid movie-grid--netflix" data-bind="foreach: MoviesOnStreamingServices">
-                    <div data-bind="css: 'popularMovie'">
-                        <div class="media">
-                            <div class="media-left">
-                                <!--<img class="media-object" data-bind="attr: {src: ImgSrc}">-->
-                                <number data-bind="text: Score"></number>
-                            </div>
-                            <div class="media-body">
-                                <a class="title-link" data-bind="click: searchClick"">
-                                    <span class=" media-heading" data-bind="text: Title">Loading</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
+        <div id="react-inject-movie-list"></div>
+
+        
 
         <div class="page-header">
             <section class="row">
@@ -97,6 +61,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel" src="react-app.js"></script>
+    <script type="text/babel" src="react-movie.js"></script>
+    <script type="text/babel" src="react-movie-list.js"></script>
 </body>
 </html>

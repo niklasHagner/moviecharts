@@ -69,6 +69,8 @@ h1, h2, h3, h4 {
 
 .popularMovie {
     transition: all 0.5s ease;
+    display: flex;
+    align-items: center;
 }
 
 .popularMovie a:hover {
@@ -83,12 +85,7 @@ h1, h2, h3, h4 {
     cursor: pointer;
 }
 
-.popularMovie .media {
-    display: flex;
-    align-items: center;
-}
-
-.popularMovie number {
+.popularMovie .number {
     margin-top:0;
     padding-top:0;
     font-size: 30px;

@@ -48,6 +48,7 @@ var searchClick = function (movie) {
     }
     fetchDataForOneFilmAndDisplayItsReviews(urlEncodedTitle, true);
 };
+window.searchClick = searchClick;
 
 var urlBase = "http://www.metacritic.com/movie/"
 var urlEnd = ""; //"/critic-reviews";
@@ -206,6 +207,11 @@ var populateFirstPageAsyc = function () {
 
         viewModel.NewReleases(popularMovies);
         viewModel.MoviesOnStreamingServices(moviesOnStreamingServices);
+        window.movieList = {
+            newReleases: popularMovies,
+            moviesOnStreamingServices: moviesOnStreamingServices
+        }
+        window.dispatchEvent(new Event('movieListDataChange'));
         deferred.resolve({popularMovies, moviesOnStreamingServices});
     });
     return deferred.promise();
