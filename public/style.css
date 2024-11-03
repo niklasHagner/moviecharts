@@ -191,25 +191,20 @@ h4 {
   font-weight: bold;
 }
 
-.reviews {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
 .review-card {
-  font-size: 14px;
-  font-family: Georgia, serif;
-  background: #f4f2e5;
-  box-shadow: 2px 2px 5px #a7a88d;
-  padding: 10px;
+  font-size: 18px;
+  background: rgb(169 184 184 / 10%);
+  box-shadow: 4px 4px 0px #333327;
+  border: solid 1px #ccc;
+  padding: 12px 16px 16px;
   margin: 10px;
 
   .score {
     font-family: 'Arvo';
+    font-size: 22px;
+    margin: 6px 0;
   }
 }
-
 
 footer {
   text-align: center;
@@ -230,5 +225,5 @@ footer {
 .review-grid {
   display: grid;
   gap: 20px;
-  grid-template-columns: 200px auto;
+  grid-template-columns: 1fr 1fr;
 }

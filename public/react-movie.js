@@ -22,7 +22,7 @@ function MovieDetails() {
         return () => {
             window.removeEventListener('movieDataChange', handleMovieDataChange);
         };
-    }, []);
+    }, []); // Empty array = run only once. Since we're setting up an event listener
 
     if (!movie) {
         return <p>Loading...</p>;
@@ -43,34 +43,20 @@ function MovieDetails() {
                 </figure>
             </div>
 
-          <section className="row">
-              <div className="review-grid">
-                <div className="grid-item">
-                  <h3>{movie.scores?.length} review scores</h3>
-                  {
-                      movie.scores?.map((score, index) => {
-                          return (
-                            <div key={index} className="review-score">{score}</div>
-                          );
-                      })
-                  }
-                </div>
-                <div className="grid-item">
-                  <h3 className="center-text">Best & worst reviews</h3>
-                  <div className="center-block reviews">
-                      {
-                          movie.reviewArray?.map((review, index) => {
-                              return (
-                                  <div key={index} className="review-card">
-                                      <h3 className="score">{review.score} %</h3>
-                                      <span>{review.text}</span>
-                                  </div>
-                              );
-                          })
-                      }
-                  </div>
-                </div>
-              </div>
+          <section>
+            <h2>Reviews with highest and lowest rating</h2>
+            <div className="review-grid">
+                {
+                    movie.reviewArray?.map((review, index) => {
+                        return (
+                            <div key={index} className="review-card">
+                                <h3 className="score">{review.score} %</h3>
+                                <span>{review.text}</span>
+                            </div>
+                        );
+                    })
+                }
+            </div>
           </section>
         </article>
     );
