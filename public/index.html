@@ -4,7 +4,6 @@
 <head>
     <link href="img/favicon.ico" rel="icon" type="image/x-icon" />
     <script src="https://code.jquery.com/jquery-latest.js "></script>
-    <script srC="libs/knockout.js"></script>
     <script src="libs/underscore.js"></script>
     <link href="fontfaces.css" type="text/css" rel="stylesheet">
     <link href="style.css" type="text/css" rel="stylesheet">
@@ -20,32 +19,13 @@
 
         <div id="react-inject-movie-list"></div>
 
-        
-
-        <div class="page-header">
-            <section class="row">
-                <div style="text-align: center; padding: 20px;" data-bind="css: {'has-error': SearchError().length > 1}">
-                    <form data-bind="submit: SearchClick">
-                        <div class="input-group">
-                            <input id="searchBox" type="text" class="form-control" placeholder="Movie title">
-                            <span class="input-group-btn">
-                                <button id="searchButton" onclick="searchClick()" class="btn btn-primary"
-                                    type="button">Search</button>
-                            </span>
-                        </div>
-                        <span style="" class="hideTilBound" data-bind="visible:true">
-                            <p style="display:block; clear:both;"
-                                data-bind="visible: SearchError().length > 1, text:SearchError" class="help-block">No
-                                results found</p>
-                        </span>
-                    </form>
-                </div>
-            </section>
-
-        </div>
-
         <article id="react-inject-movie">
         </article>
+        
+        <section style="padding: 40px 0px; text-align: center;">
+          <h2>Search</h2>
+          <div style="padding: 10px 0" id="react-inject-search"></div>
+        <section>
     </main>
 
     <footer>
@@ -63,5 +43,6 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel" src="react-movie.js"></script>
     <script type="text/babel" src="react-movie-list.js"></script>
+    <script type="text/babel" src="react-search.js"></script>
 </body>
 </html>

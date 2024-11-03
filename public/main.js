@@ -8,14 +8,11 @@ $(document).ready(function () {
     var movieName = param_MovieName;
     var movieUrl = movieName;
 
-    bindView();
-
     populateFirstPageAsyc().then(function (movies) {
         var popularMovies = movies.popularMovies;
         if (movieName == null || movieName == "") {
             movieName = popularMovies[0].Title;
             movieUrl = popularMovies[0].Url;
-            setMovieName(movieName);
         }
         fetchDataForOneFilmAndDisplayItsReviews(movieUrl, searchByUrlParam);
     });
@@ -33,41 +30,27 @@ var searchByUrlParam = false;
 
 var searchClick = function (movie) {
     searchByUrlParam = false;
-    viewModel.SearchError("");
     var title = "";
     var urlEncodedTitle = "";
-    if (movie !== null && typeof movie !== "undefined" && typeof movie["Url"] !== "undefined") { //search by movie param
+    if (typeof movie === "string") { 
+      title = movie;
+      urlEncodedTitle = title.replace(/[,;: ]+/g, "-").replace("'","").toLowerCase();
+    }
+    else if (typeof movie === "object" && typeof movie["Url"] !== "undefined") { //search by movie param
         title = movie.Title;
-        setUrlHash(movie.Url);
-        setMovieName(title);
         urlEncodedTitle = movie.Url;
     }
-    else { //search by value in textbox
-        title = $("#searchBox").val().trim();
-        urlEncodedTitle = title.replace(/[,;: ]+/g, "-").replace("'","").toLowerCase();
+    else { 
+      title = $("#searchBox").val().trim();
+      urlEncodedTitle = title.replace(/[,;: ]+/g, "-").replace("'","").toLowerCase();
     }
     fetchDataForOneFilmAndDisplayItsReviews(urlEncodedTitle, true);
 };
-window.searchClick = searchClick;
+window.searchClick = searchClick; // for react
 
 var urlBase = "http://www.metacritic.com/movie/"
 var urlEnd = ""; //"/critic-reviews";
 var movieUrl = urlBase + "automata";
-var viewModel = {
-    Movie: {
-        Name: ko.observable(""),
-        Description: ko.observable(""),
-        Url: ko.observable(movieUrl),
-        ImgSrc: ko.observable("")
-    },
-    Reviews: ko.observableArray([]),
-    Scores: ko.observableArray([]),
-    ScoresAndCounts: ko.observableArray([]),
-    SearchError: ko.observable(""),
-    SearchClick: searchClick,
-    NewReleases: ko.observableArray([]),
-    MoviesOnStreamingServices: ko.observableArray([]),
-};
 
 var populateMovieScoreByCriticsHTML = function (reviewArray) {
     //options
@@ -76,8 +59,6 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
     //Example object: { score: 90, text "a good movie" } 
     const allScores = reviewArray.map(x => Number(x.score));
     const scoresAndCounts = getScoresAndCountsFromScores(allScores);
-    viewModel.Scores(allScores);
-    viewModel.ScoresAndCounts(scoresAndCounts);
     window.movieData.scores = allScores;
     window.dispatchEvent(new Event('movieDataChange'));
 
@@ -172,16 +153,6 @@ var populateMovieScoreByCriticsHTML = function (reviewArray) {
 };
 
 
-var bindView = function () {
-    if (firstTimeLoading)
-        ko.applyBindings(viewModel);
-    firstTimeLoading = false;
-};
-
-var setMovieName = function (movieName, movieUrl) {
-    viewModel.Movie.Name(movieName);
-};
-
 /*
     returns { popularMovies: [], moviesOnStreamingServices: [] }
 */
@@ -205,8 +176,6 @@ var populateFirstPageAsyc = function () {
                 return sortResult;
             });
 
-        viewModel.NewReleases(popularMovies);
-        viewModel.MoviesOnStreamingServices(moviesOnStreamingServices);
         window.movieList = {
             newReleases: popularMovies,
             moviesOnStreamingServices: moviesOnStreamingServices
@@ -225,7 +194,6 @@ var getFirstPageAsync = function () {
             deferred.resolve(firstPageHTML);
         })
         .fail(function () {
-            viewModel.SearchError("Could not load the first page, AAARGH!");
             deferred.reject("could not get first page");
             throw Error("getCrossDomainData promise failure. CRAP!");
         });
@@ -253,15 +221,11 @@ var getReviewArrayAsync = async function (urlEncodedTitle) {
     if (!movieDetailsResponse.ok) {
         window.viewData.searchError = "No reviews found. Try again!";
         window.dispatchEvent(new Event('movieDataChange'));
-        // viewModel.SearchError("No reviews found. Try again!");
         console.error("getReviewArrayAsync promise failure for critic reviews");
         throw Error("getCrossDomainData promise failure :'( ...");
         return;
     }
-    // viewModel.SearchError("");
     window.viewData.searchError = null;
-    window.dispatchEvent(new Event('globalViewModelChange'));
-    
     populateMovieScoreByCriticsHTML(reviewArray);
 
     //Take the 2 best and 2 worst reviews
